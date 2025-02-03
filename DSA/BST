@@ -24,49 +24,126 @@ public:
 		}
 	}
 	
-	void insert(int data, Node *root){
-		Node *insertNode = new Node();
-		if(root==NULL){
+	void insert(Node *root, int data){
+		if(root == NULL){
 			create(data);
+		}
+		else{
+			Node *newNode = new Node;
+			newNode->data=data;
+			newNode->left;
+			newNode->right;
+			if(root->data>data){
+				if(root->left=NULL){
+					root->left=newNode;
+				}else{
+					insert(root->left, data);
+				}
+			}else{
+				if(root->right=NULL){
+					root->right=newNode;
+				}else{
+					insert(root->right, data);
+				}
+			}
+		}
+	
+	}
+	
+	void search(Node *root, int searchData){
+		if(root==NULL){
+			cout<<"No Binary Search Tree Created!"<<endl;
 		}else{
-		if(root->data<data){
-			if(root->right==NULL){
-				root->right=insertNode;
+			if(root->data==searchData){
+				cout<<"Value found at root!"<<endl;
+			}
+			else if(root->data>searchData){
+				if(root->left!=NULL && root->left->data==searchData){
+					cout<<"Value found at left: "<<root->left->searchData<<endl;
+				}else{
+					search(root->left, searchData);
+				}
+			}else if(root->data<searchData){
+				if(root->left!=NULL && root->right->data==searchData){
+					cout<<"Value found at right: "<<root->right->searchData<<endl;
+				}else{
+					search(root->right, searchData);
+				}
 			}else{
-				insert(data,root->right);
+				cout<<"The Element is not present."
 			}
 		}
-		else(root->data>data){
+	}
+	
+	void smallest(Node *root){
+		if(root==NULL){
+			cout<<"No Binary Search Tree Present!"<<endl;
+		}else{
 			if(root->left==NULL){
-				root->left=insertNode;
+				cout<<"Smallest Element is Element"<<root->data<<endl;
 			}else{
-				insert(data,root->left);
+				smallest(root->left);
 			}
-		}}
-	}
-	
-	void display(Node *root){
-		Node *displayNode = new Node();
-		if(root!=NULL){
-			cout<<"Root Node: "<<root->data<<endl;
-		}
-		if(root->left!=NULL){
-			displayNode=root->left;
-			cout<<"Root Left: "<<displayNode->data<<endl;
-		}
-		if(root->right!=NULL){
-			displayNode=root->right;
-			cout<<"Root Right: "<<displayNode->data<<endl;
 		}
 	}
 	
+	void height(Node *root){
+		if(root->data==NULL){
+			cout<<"No Binary Search Tree Present!"<<endl;
+		}
+		
+		int leftHeight = height(root->left);
+		int rightHeight = height(root->right);
+		
+		int maxheight = max(leftHeight, rightHeight) + 1;
+		
+		cout<<"Height of Tree: "<<maxheight<<endl;
+	}
 	
 };
+	
+
 
 int main(){
 	BST bt;
-	bt.create(25);
-	bt.insert(15, bt.root);
-	bt.insert(35, bt.root);
-	bt.display(bt.root);
+	int ch;
+	do{
+		cout<<"***********MENU************"<<endl;
+		cout<<"1. Create"<<endl;
+		cout<<"2. Insert"<<endl;
+		cout<<"3. Smallest"<<endl;
+		cout<<"4. Height"<<endl;
+		cout<<"5. Search"<<endl;
+		cout<<"6. Exit"<<endl;
+		cout<<"Enter your choice: "<<endl;
+		cin>>ch;
+		if(ch==1){
+			int n;
+			cout<<"Enter value for root node: "<<endl;
+			cin>>n;
+			bt.create(n);
+		}
+		else if(ch==2){
+			int insert;
+			cout<<"Enter value to be inserted: "<<endl;
+			cin>>insert;
+			bt.insert(bt.root, insert);
+		}
+		else if(ch==3){
+			bt.smallest(bt.root);
+		}
+		else if(ch==4){
+			bt.height(bt.root);
+		}
+		else if(ch==5){
+			int search;
+			cout<<"Enter element to be searched: "<<endl;
+			cin>>search;
+			bt.search(bt.root, search);
+		}
+		else if(ch==6){
+			break;
+		}
+	
+	}while(ch!=6) 
 }
