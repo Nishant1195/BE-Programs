@@ -1,97 +1,165 @@
 #include <iostream>
 #include <string>
+#include <algorithm>
 using namespace std;
 
-// Node structure for BST
+// Structure for AVL Tree node
 struct Node {
-    string key;
+    string word;
     string meaning;
+    int height;
     Node* left;
     Node* right;
 
-    Node(string k, string m) {
-        key = k;
-        meaning = m;
-        left = right = nullptr;
-    }
+    Node(string w, string m)
+        : word(w), meaning(m), height(1), left(nullptr), right(nullptr) {}
 };
 
-// Insert into BST
-Node* insert(Node* root, string key, string meaning) {
-    if (!root)
-        return new Node(key, meaning);
+// Get height of node
+int getHeight(Node* node) {
+    return node ? node->height : 0;
+}
 
-    if (key < root->key)
-        root->left = insert(root->left, key, meaning);
-    else if (key > root->key)
-        root->right = insert(root->right, key, meaning);
-    else
-        cout << "Word already exists!\n";
+// Get balance factor of node
+int getBalance(Node* node) {
+    return node ? getHeight(node->left) - getHeight(node->right) : 0;
+}
+
+// Update height of node
+void updateHeight(Node* node) {
+    node->height = 1 + max(getHeight(node->left), getHeight(node->right));
+}
+
+// Right rotation
+Node* rotateRight(Node* y) {
+    Node* x = y->left;
+    Node* T2 = x->right;
+
+    x->right = y;
+    y->left = T2;
+
+    updateHeight(y);
+    updateHeight(x);
+
+    return x;
+}
+
+// Left rotation
+Node* rotateLeft(Node* x) {
+    Node* y = x->right;
+    Node* T2 = y->left;
+
+    y->left = x;
+    x->right = T2;
+
+    updateHeight(x);
+    updateHeight(y);
+
+    return y;
+}
+
+// Insert a word into the AVL tree
+Node* insert(Node* root, string word, string meaning) {
+    if (!root)
+        return new Node(word, meaning);
+
+    if (word < root->word)
+        root->left = insert(root->left, word, meaning);
+    else if (word > root->word)
+        root->right = insert(root->right, word, meaning);
+    else {
+        cout << "Word already exists: " << word << "\n";
+        return root;
+    }
+
+    updateHeight(root);
+
+    int balance = getBalance(root);
+
+    // Balancing cases
+    if (balance > 1 && word < root->left->word) // Left Left
+        return rotateRight(root);
+    if (balance < -1 && word > root->right->word) // Right Right
+        return rotateLeft(root);
+    if (balance > 1 && word > root->left->word) { // Left Right
+        root->left = rotateLeft(root->left);
+        return rotateRight(root);
+    }
+    if (balance < -1 && word < root->right->word) { // Right Left
+        root->right = rotateRight(root->right);
+        return rotateLeft(root);
+    }
 
     return root;
 }
 
-// Search in BST
-void search(Node* root, string key) {
+// Search for a word
+void search(Node* root, const string& word) {
     if (!root) {
-        cout << "Word not found.\n";
+        cout << "Word not found: " << word << "\n";
         return;
     }
 
-    if (key == root->key)
-        cout << "Meaning of '" << key << "' is: " << root->meaning << "\n";
-    else if (key < root->key)
-        search(root->left, key);
+    if (word == root->word)
+        cout << "Meaning of '" << word << "': " << root->meaning << "\n";
+    else if (word < root->word)
+        search(root->left, word);
     else
-        search(root->right, key);
+        search(root->right, word);
 }
 
-// Display words in alphabetical order
-void display(Node* root) {
+// Display all words in alphabetical order
+void displayDictionary(Node* root) {
     if (!root) return;
-    display(root->left);
-    cout << root->key << ": " << root->meaning << "\n";
-    display(root->right);
+    displayDictionary(root->left);
+    cout << root->word << ": " << root->meaning << "\n";
+    displayDictionary(root->right);
 }
 
+// Main function
 int main() {
     Node* root = nullptr;
     int choice;
     string word, meaning;
 
     do {
-        cout << "\nDictionary Menu:\n";
-        cout << "1. Add Word\n";
-        cout << "2. Find Meaning\n";
-        cout << "3. Show All Words\n";
+        cout << "\n--- Dictionary Menu ---\n";
+        cout << "1. Insert Word\n";
+        cout << "2. Search Word\n";
+        cout << "3. Display All Words\n";
         cout << "4. Exit\n";
-        cout << "Enter choice: ";
+        cout << "Enter your choice: ";
         cin >> choice;
-        cin.ignore();  // ignore leftover newline
+        cin.ignore(); // To handle newline after choice
 
         switch (choice) {
-        case 1:
-            cout << "Enter word: ";
-            getline(cin, word);
-            cout << "Enter meaning: ";
-            getline(cin, meaning);
-            root = insert(root, word, meaning);
-            break;
-        case 2:
-            cout << "Enter word to search: ";
-            getline(cin, word);
-            search(root, word);
-            break;
-        case 3:
-            cout << "Dictionary contents:\n";
-            display(root);
-            break;
-        case 4:
-            cout << "Goodbye!\n";
-            break;
-        default:
-            cout << "Invalid choice. Try again.\n";
+            case 1:
+                cout << "Enter word: ";
+                getline(cin, word);
+                cout << "Enter meaning: ";
+                getline(cin, meaning);
+                root = insert(root, word, meaning);
+                break;
+
+            case 2:
+                cout << "Enter word to search: ";
+                getline(cin, word);
+                search(root, word);
+                break;
+
+            case 3:
+                cout << "\n--- Dictionary Contents ---\n";
+                displayDictionary(root);
+                break;
+
+            case 4:
+                cout << "Exiting program. Goodbye!\n";
+                break;
+
+            default:
+                cout << "Invalid choice. Please try again.\n";
         }
+
     } while (choice != 4);
 
     return 0;
