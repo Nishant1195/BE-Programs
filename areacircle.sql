@@ -22,4 +22,4 @@ DELIMITER ;
 
 CALL circle_area();
 
-//1
+//1 2
