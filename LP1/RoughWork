@@ -1,0 +1,94 @@
+import java.utils.*;
+
+class Symbol{
+    int address;
+    String name;
+
+    Symbol(String n, int a){
+        name =n;
+        address =a;
+    }
+
+    public String toString(){
+        return name +"\t"+address
+    }
+}
+
+public class PassOneAssembler {
+    static Map<String, Integer> MOT = new HashMap<>();
+    static Map<String, Integer> POT = new HashMap<>();
+    static List<Symbol> SYMTAB = new ArrayList<>();
+
+    public static void main(String[] args){
+        init();
+
+        String code[] = {
+            "START 100",
+            "LOOP MOV AREG, NUM",
+            "ADD AREG, ONE",
+            "SUB AREG, TWO",
+            "MOV RESULT, AREG",
+            "NUM DS 1",
+            "ONE DC 1",
+            "TWO DC 2",
+            "RESULT DS 1",
+            "END"
+        }
+        passOne(code);
+    }
+
+    static void init(){
+        MOT.put("ADD", 1);
+        MOT.put("SUB", 2);
+        MOT.put("MOV", 3);
+
+        POT.put("START", 1);
+        POT.put("END", 2);
+        POT.put("DC", 3);
+        POT.put("DS", 4)
+    }
+
+    static void passOne(String[] code){
+        int LC = 0;
+        System.out.println("===One Pass===");
+
+        for(String line : code){
+            String parts[] = line.split("\\s+");
+            String label="", op = parts[0], opd = "";
+            if(parts.length>1){
+                opd = parts[1]
+            }
+            if(parts.length ==3){
+                label = parts[0];
+                op = parts[1];
+                opd = parts[2];
+            }
+
+            if(op.equals("START")){
+                LC = Integer.parseInt(opd);
+                continue;
+            }
+
+            if(!label.isEmpty()){
+                SYMTAB.add(new Symbol(label, LC));
+            }
+            if(op.equals("DS")){
+                LC += Integer.parseInt(opd);
+            }
+            if(op.equals("DC")){
+                LC++;
+            }
+            if(op.equals("END")){
+                break;
+            }
+            if(MOT.containsKey(op)){
+                LC++;
+            }
+            
+        }
+        System.out.println("SYMBOL TABLE");
+        System.out.println("Symbol\tAddress");
+        SYMTAB.forEach(System.out::println);
+        
+    }
+}
