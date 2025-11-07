@@ -1,109 +1,75 @@
 import java.util.*;
 
-// Class to represent Macro Name Table entry
-class MNTEntry {
-    String name;
-    int mdtIndex;
+class MacroProcessorPass1 {
+    Map<String, Integer> MNT = new LinkedHashMap<>();
+    List<String> MDT = new ArrayList<>();
+    List<String> intermediate = new ArrayList<>();
 
-    MNTEntry(String name, int mdtIndex) {
-        this.name = name;
-        this.mdtIndex = mdtIndex;
+    void pass1(String[] code) {
+        boolean inMacro = false;
+        String macroName = "";
+        int mdtPtr = 0;
+
+        for (String line : code) {
+            line = line.trim();
+
+            if (line.equals("MACRO")) {         // macro starts
+                inMacro = true;
+                continue;
+            }
+
+            if (inMacro) {
+                if (macroName.equals("")) {
+                    // first line of macro -> macro name
+                    macroName = line.split("\\s+")[0];
+                    MNT.put(macroName, mdtPtr);
+                } else if (line.equals("MEND")) {
+                    MDT.add("MEND");
+                    mdtPtr++;
+                    inMacro = false;
+                    macroName = "";
+                } else {
+                    MDT.add(line);  // store macro body
+                    mdtPtr++;
+                }
+            } else {
+                // outside macro → intermediate code
+                intermediate.add(line);
+            }
+        }
     }
 
-    @Override
-    public String toString() {
-        return name + "\t" + mdtIndex;
+    void printTables() {
+        System.out.println("\nMNT (Macro Name Table)");
+        System.out.println("----------------------");
+        MNT.forEach((k, v) -> System.out.println(k + " -> MDT[" + v + "]"));
+
+        System.out.println("\nMDT (Macro Definition Table)");
+        System.out.println("---------------------------");
+        for (int i = 0; i < MDT.size(); i++) {
+            System.out.println(i + " : " + MDT.get(i));
+        }
+
+        System.out.println("\nIntermediate Code");
+        System.out.println("------------------");
+        intermediate.forEach(System.out::println);
     }
 }
 
-// Main Macro Processor Pass-I
-public class MacroProcessorPass1 {
-    static List<MNTEntry> MNT = new ArrayList<>();
-    static List<String> MDT = new ArrayList<>();
-    static Map<String, Integer> ALA = new LinkedHashMap<>();
-
+public class Main {
     public static void main(String[] args) {
-        // Sample input assembly program with macros
         String program[] = {
             "MACRO",
-            "INCR &ARG1, &ARG2",
-            "ADD &ARG1, &ARG2",
+            "INCR A,B",
+            "ADD A,B",
             "MEND",
             "START",
-            "MOV AREG, NUM",
-            "INCR AREG, ONE",
+            "INCR X,Y",
             "END"
         };
 
-        processMacros(program);
-    }
-
-    static void processMacros(String[] program) {
-        boolean inMacroDef = false;
-        int mdtIndex = 0;
-
-        for (int i = 0; i < program.length; i++) {
-            String line = program[i].trim();
-            String[] parts = line.split("\\s+|,\\s*");
-
-            if (line.equalsIgnoreCase("MACRO")) {
-                inMacroDef = true;
-                continue;
-            }
-
-            if (inMacroDef) {
-                // First line after MACRO -> macro prototype
-                String macroName = parts[0];
-                MNT.add(new MNTEntry(macroName, MDT.size() + 1)); // store macro name and MDT index
-
-                // Build ALA (Argument List Array)
-                ALA.clear();
-                for (int j = 1; j < parts.length; j++) {
-                    if (parts[j].startsWith("&")) {
-                        ALA.put(parts[j], ALA.size() + 1);
-                    }
-                }
-
-                // Now read the body until MEND
-                i++;
-                while (!program[i].trim().equalsIgnoreCase("MEND")) {
-                    String bodyLine = program[i].trim();
-
-                    // Replace arguments with positional notation (#1, #2, etc.)
-                    for (Map.Entry<String, Integer> entry : ALA.entrySet()) {
-                        bodyLine = bodyLine.replace(entry.getKey(), "#" + entry.getValue());
-                    }
-
-                    MDT.add(bodyLine);
-                    i++;
-                }
-
-                MDT.add("MEND"); // add MEND to MDT
-                inMacroDef = false;
-                continue;
-            }
-        }
-
-        // Print tables
-        printTables();
-    }
-
-    static void printTables() {
-        System.out.println("----- MACRO NAME TABLE (MNT) -----");
-        System.out.println("Name\tMDT Index");
-        for (MNTEntry e : MNT) {
-            System.out.println(e);
-        }
-
-        System.out.println("\n----- MACRO DEFINITION TABLE (MDT) -----");
-        int index = 1;
-        for (String s : MDT) {
-            System.out.println(index++ + "\t" + s);
-        }
-
-        System.out.println("\n----- ARGUMENT LIST ARRAY (ALA) -----");
-        for (Map.Entry<String, Integer> e : ALA.entrySet()) {
-            System.out.println(e.getKey() + " -> #" + e.getValue());
-        }
+        MacroProcessorPass1 mp = new MacroProcessorPass1();
+        mp.pass1(program);
+        mp.printTables();
     }
 }
