@@ -1,0 +1,40 @@
+### MongoDB Assignment — OrderInfo Collection (Indexing & Queries)
+
+**Name:** Nishant Talekar (Roll No: 54, TY C)
+**Team:** Om (53), Atharva (60), Priti (61), Mamta (69), Nikita (74), Mahek (79)
+
+---
+
+### OrderInfo Collection
+
+```js
+db.orderinfo.insertMany([
+  { cust_id: 123, cust_name: "abc", status: "A", price: 250 },
+  { cust_id: 124, cust_name: "xyz", status: "B", price: 800 },
+  { cust_id: 125, cust_name: "pqr", status: "A", price: 150 },
+  { cust_id: 126, cust_name: "lmn", status: "C", price: 1200 }
+]);
+
+// i. Average price for each customer with status 'A'
+db.orderinfo.aggregate([
+  { $match: { status: "A" } },
+  { $group: { _id: "$cust_name", avg_price: { $avg: "$price" } } }
+]);
+
+// ii. Status of customers with price between 100 and 1000
+db.orderinfo.find({ price: { $gte: 100, $lte: 1000 } }, { status: 1, _id: 0 });
+
+// iii. Display all customer info without _id
+db.orderinfo.find({}, { _id: 0 });
+
+// iv. Create a simple index on 'price'
+db.orderinfo.createIndex({ price: 1 });
+
+// Query using the index
+db.orderinfo.find({ price: { $gte: 100, $lte: 1000 } });
+```
+
+### Explanation of Index Impact
+
+* **Before Index:** MongoDB scans every document (collection scan), resulting in slower performance for large datasets.
+* **After Index:** MongoDB uses the index on the 'price' field, significantly improving query speed for range queries like `$gte` and `$lte` by directly locating matching documents without scanning all entries.

@@ -1,0 +1,76 @@
+------------------------------------------------------------
+-- PL/SQL Block Demonstrating All Types of Cursors
+------------------------------------------------------------
+
+-- 1️⃣ IMPLICIT CURSOR Example
+BEGIN
+    UPDATE Employee
+    SET pay_rate = pay_rate + 1000
+    WHERE post = 'Manager';
+    
+    IF SQL%FOUND THEN
+        DBMS_OUTPUT.PUT_LINE(SQL%ROWCOUNT || ' rows updated using Implicit Cursor.');
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('No records found.');
+    END IF;
+END;
+/
+------------------------------------------------------------
+-- 2️⃣ EXPLICIT CURSOR Example
+DECLARE
+    CURSOR c_emp IS
+        SELECT e_name, pay_rate FROM Employee WHERE pay_rate > 20000;
+    v_name Employee.e_name%TYPE;
+    v_pay Employee.pay_rate%TYPE;
+BEGIN
+    OPEN c_emp;
+    LOOP
+        FETCH c_emp INTO v_name, v_pay;
+        EXIT WHEN c_emp%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('Employee: ' || v_name || ' | Pay Rate: ' || v_pay);
+    END LOOP;
+    CLOSE c_emp;
+END;
+/
+------------------------------------------------------------
+-- 3️⃣ CURSOR FOR LOOP Example
+BEGIN
+    FOR rec IN (SELECT e_name, post FROM Employee) LOOP
+        DBMS_OUTPUT.PUT_LINE('Employee: ' || rec.e_name || ' | Post: ' || rec.post);
+    END LOOP;
+END;
+/
+------------------------------------------------------------
+-- 4️⃣ PARAMETERIZED CURSOR Example
+DECLARE
+    CURSOR c_post(p_post Employee.post%TYPE) IS
+        SELECT e_name, pay_rate FROM Employee WHERE post = p_post;
+BEGIN
+    FOR rec IN c_post('Manager') LOOP
+        DBMS_OUTPUT.PUT_LINE('Manager: ' || rec.e_name || ' | Pay Rate: ' || rec.pay_rate);
+    END LOOP;
+END;
+/
+------------------------------------------------------------
+-- 5️⃣ PARAMETERIZED CURSOR to MERGE N_RollCall with O_RollCall
+------------------------------------------------------------
+DECLARE
+    CURSOR c_new IS
+        SELECT RollNo, Name FROM N_RollCall;
+    v_count NUMBER;
+BEGIN
+    FOR rec IN c_new LOOP
+        SELECT COUNT(*) INTO v_count
+        FROM O_RollCall
+        WHERE RollNo = rec.RollNo;
+
+        IF v_count = 0 THEN
+            INSERT INTO O_RollCall (RollNo, Name)
+            VALUES (rec.RollNo, rec.Name);
+            DBMS_OUTPUT.PUT_LINE('Inserted Roll No: ' || rec.RollNo);
+        ELSE
+            DBMS_OUTPUT.PUT_LINE('Skipped Roll No (Already Exists): ' || rec.RollNo);
+        END IF;
+    END LOOP;
+END;
+/

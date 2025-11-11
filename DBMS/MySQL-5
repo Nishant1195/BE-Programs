@@ -1,0 +1,54 @@
+-- Creating tables
+CREATE TABLE teaches (
+  T_ID INT,
+  course_id VARCHAR(10),
+  sec_id INT,
+  semester VARCHAR(20),
+  year INT
+);
+
+CREATE TABLE student (
+  S_ID INT,
+  name VARCHAR(50),
+  dept_name VARCHAR(50),
+  tot_cred INT
+);
+
+CREATE TABLE instructor (
+  T_ID INT,
+  name VARCHAR(50),
+  dept_name VARCHAR(50),
+  salary INT
+);
+
+CREATE TABLE course (
+  course_id VARCHAR(10),
+  title VARCHAR(50),
+  dept_name VARCHAR(50),
+  credits INT
+);
+
+-- i. Find the total number of instructors who teach a course in the First semester 2010
+SELECT COUNT(DISTINCT T_ID) AS total_instructors
+FROM teaches
+WHERE semester = 'First' AND year = 2010;
+
+-- ii. Find the names of all instructors from Computer department whose name includes the substring 'shree'
+SELECT name
+FROM instructor
+WHERE dept_name = 'Computer' AND name LIKE '%shree%';
+
+-- iii. Find the names of all instructors that have a salary greater than the average salary of the Civil department
+SELECT name, salary
+FROM instructor
+WHERE salary > (
+  SELECT AVG(salary)
+  FROM instructor
+  WHERE dept_name = 'Civil'
+);
+
+-- iv. Find the set of all courses taught either in Fifth semester 2014 or in First semester 2010 or both
+SELECT DISTINCT course_id
+FROM teaches
+WHERE (semester = 'Fifth' AND year = 2014)
+   OR (semester = 'First' AND year = 2010);

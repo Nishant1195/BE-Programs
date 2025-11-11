@@ -1,0 +1,57 @@
+-- Creating tables
+CREATE TABLE teaches (
+  T_ID INT,
+  course_id VARCHAR(10),
+  sec_id INT,
+  semester VARCHAR(10),
+  year INT
+);
+
+CREATE TABLE section (
+  course_id VARCHAR(10),
+  sec_id INT,
+  semester VARCHAR(10),
+  year INT,
+  building VARCHAR(50),
+  room_no VARCHAR(10)
+);
+
+CREATE TABLE instructor (
+  T_ID INT,
+  name VARCHAR(50),
+  dept_name VARCHAR(50),
+  salary INT
+);
+
+CREATE TABLE course (
+  course_id VARCHAR(10),
+  title VARCHAR(50),
+  dept_name VARCHAR(50),
+  credits INT
+);
+
+-- i. Display the name of the instructor whose salary is between 30000 and 60000 in descending order
+SELECT name, salary
+FROM instructor
+WHERE salary BETWEEN 30000 AND 60000
+ORDER BY salary DESC;
+
+-- ii. Find the average, minimum, and maximum salary in each department
+SELECT dept_name,
+       AVG(salary) AS average_salary,
+       MIN(salary) AS minimum_salary,
+       MAX(salary) AS maximum_salary
+FROM instructor
+GROUP BY dept_name;
+
+-- iii. Display the name, department name, and salary of the instructor who teaches course_id = 101
+SELECT i.name, i.dept_name, i.salary
+FROM instructor i
+JOIN teaches t ON i.T_ID = t.T_ID
+WHERE t.course_id = '101';
+
+-- iv. Find the name of the instructor whose average salary is greater than 60000
+SELECT dept_name, AVG(salary) AS avg_salary
+FROM instructor
+GROUP BY dept_name
+HAVING AVG(salary) > 60000;

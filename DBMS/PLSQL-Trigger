@@ -1,0 +1,39 @@
+------------------------------------------------------------
+-- Trigger on Library Table
+-- Purpose: Automatically update issue date and show message
+-- when a new book is issued (record inserted).
+------------------------------------------------------------
+
+-- Sample Table
+CREATE TABLE Library (
+    Book_ID     NUMBER PRIMARY KEY,
+    Book_Name   VARCHAR2(100),
+    Member_Name VARCHAR2(100),
+    Issue_Date  DATE,
+    Status      VARCHAR2(10)
+);
+
+------------------------------------------------------------
+-- Trigger Creation
+------------------------------------------------------------
+CREATE OR REPLACE TRIGGER trg_Library_Issue
+BEFORE INSERT ON Library
+FOR EACH ROW
+BEGIN
+    -- Set the Issue_Date automatically to current date
+    :NEW.Issue_Date := SYSDATE;
+
+    -- Display confirmation message
+    DBMS_OUTPUT.PUT_LINE('Book "' || :NEW.Book_Name || 
+                         '" issued to ' || :NEW.Member_Name || 
+                         ' on ' || TO_CHAR(SYSDATE, 'DD-MON-YYYY'));
+END;
+/
+------------------------------------------------------------
+-- Test the Trigger
+------------------------------------------------------------
+INSERT INTO Library (Book_ID, Book_Name, Member_Name, Status)
+VALUES (101, 'Database Systems', 'Nishant Talekar', 'Issued');
+
+SELECT * FROM Library;
+/

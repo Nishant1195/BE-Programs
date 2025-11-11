@@ -1,0 +1,51 @@
+-- PL/SQL block for calculating fine and updating book status
+
+DECLARE
+    v_rollno      Borrower.Rollin%TYPE;
+    v_bookname    Borrower.NameofBook%TYPE;
+    v_dateofissue Borrower.DateofIssue%TYPE;
+    v_days        NUMBER;
+    v_fineamt     NUMBER := 0;
+BEGIN
+    -- Accept input from user
+    v_rollno := &Roll_No;
+    v_bookname := '&Book_Name';
+
+    -- Get Date of Issue
+    SELECT DateofIssue INTO v_dateofissue
+    FROM Borrower
+    WHERE Rollin = v_rollno AND NameofBook = v_bookname;
+
+    -- Calculate number of days since issue
+    v_days := TRUNC(SYSDATE - v_dateofissue);
+
+    -- Calculate fine
+    IF v_days BETWEEN 15 AND 30 THEN
+        v_fineamt := v_days * 5;
+    ELSIF v_days > 30 THEN
+        v_fineamt := v_days * 50;
+    ELSE
+        v_fineamt := 0;
+    END IF;
+
+    -- Update book status to 'R' (Returned)
+    UPDATE Borrower
+    SET Status = 'R'
+    WHERE Rollin = v_rollno AND NameofBook = v_bookname;
+
+    -- If fine applicable, insert record in Fine table
+    IF v_fineamt > 0 THEN
+        INSERT INTO Fine (Roll_no, Date, Amt)
+        VALUES (v_rollno, SYSDATE, v_fineamt);
+    END IF;
+
+    DBMS_OUTPUT.PUT_LINE('Book return updated successfully.');
+    DBMS_OUTPUT.PUT_LINE('Total Days: ' || v_days);
+    DBMS_OUTPUT.PUT_LINE('Fine Amount: Rs. ' || v_fineamt);
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('No record found for given Roll No and Book Name.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;
+/

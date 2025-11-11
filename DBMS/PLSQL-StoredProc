@@ -1,0 +1,41 @@
+------------------------------------------------------------
+-- Stored Procedure: proc_Grade
+------------------------------------------------------------
+CREATE OR REPLACE PROCEDURE proc_Grade (
+    p_rollno IN Stud_Marks.rollno%TYPE,
+    p_name   IN Stud_Marks.name%TYPE,
+    p_total  IN Stud_Marks.total_marks%TYPE
+)
+IS
+    v_class VARCHAR2(30);
+BEGIN
+    IF p_total BETWEEN 990 AND 1500 THEN
+        v_class := 'Distinction';
+    ELSIF p_total BETWEEN 900 AND 989 THEN
+        v_class := 'First Class';
+    ELSIF p_total BETWEEN 825 AND 899 THEN
+        v_class := 'Higher Second Class';
+    ELSE
+        v_class := 'Fail';
+    END IF;
+
+    INSERT INTO Result (Roll, Name, Class)
+    VALUES (p_rollno, p_name, v_class);
+
+    DBMS_OUTPUT.PUT_LINE('Student ' || p_name || ' categorized as ' || v_class);
+END;
+/
+------------------------------------------------------------
+-- PL/SQL Block to Use the Stored Procedure
+------------------------------------------------------------
+DECLARE
+    v_roll Stud_Marks.rollno%TYPE;
+    v_name Stud_Marks.name%TYPE;
+    v_marks Stud_Marks.total_marks%TYPE;
+BEGIN
+    -- Example: Get details from Stud_Marks table and call the procedure
+    FOR rec IN (SELECT rollno, name, total_marks FROM Stud_Marks) LOOP
+        proc_Grade(rec.rollno, rec.name, rec.total_marks);
+    END LOOP;
+END;
+/

@@ -1,0 +1,37 @@
+### MongoDB Assignment — OrderInfo Collection (Complex Index & Updates)
+
+**Name:** Nishant Talekar (Roll No: 54, TY C)
+**Team:** Om (53), Atharva (60), Priti (61), Mamta (69), Nikita (74), Mahek (79)
+
+---
+
+### OrderInfo Collection
+
+```js
+db.orderinfo.insertMany([
+  { cust_id: 123, cust_name: "abc", status: "A", price: 250 },
+  { cust_id: 124, cust_name: "xyz", status: "B", price: 400 },
+  { cust_id: 125, cust_name: "pqr", status: "A", price: 150 },
+  { cust_id: 126, cust_name: "lmn", status: "C", price: 700 }
+]);
+
+// i. Add 'Age' field to each document
+db.orderinfo.updateMany({}, { $set: { Age: 25 } });
+
+// ii. Create a complex index (compound index) and drop duplicates
+db.orderinfo.createIndex({ cust_id: 1, status: 1 }, { unique: true, dropDups: true });
+
+// Query using the complex index
+db.orderinfo.find({ status: "A" }).sort({ cust_id: 1 });
+
+// iii. Average price per customer grouped by status
+db.orderinfo.aggregate([
+  { $group: { _id: "$status", avg_price: { $avg: "$price" } } }
+]);
+
+// iv. Change customer name where status = 'B'
+db.orderinfo.updateMany(
+  { status: "B" },
+  { $set: { cust_name: "UpdatedName" } }
+);
+```

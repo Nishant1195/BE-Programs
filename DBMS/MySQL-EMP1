@@ -1,0 +1,48 @@
+-- Creating tables
+CREATE TABLE Emp (
+  emp_id INT,
+  ename VARCHAR(50),
+  street VARCHAR(50),
+  city VARCHAR(50)
+);
+
+CREATE TABLE Works (
+  emp_id INT,
+  c_id INT,
+  ename VARCHAR(50),
+  cname VARCHAR(50),
+  sal INT
+);
+
+CREATE TABLE Company (
+  c_id INT,
+  cname VARCHAR(50),
+  city VARCHAR(50)
+);
+
+CREATE TABLE Manager (
+  mgr_id INT,
+  mgrname VARCHAR(50)
+);
+
+-- i. Modify the database so that a particular company (e.g., ABC) is now in Pune
+UPDATE Company
+SET city = 'Pune'
+WHERE cname = 'ABC';
+
+-- ii. Give all managers of Mbank a 10% raise. If salary is > 20000, give only 3% raise
+UPDATE Works
+SET sal = CASE
+             WHEN sal > 20000 THEN sal * 1.03
+             ELSE sal * 1.10
+          END
+WHERE cname = 'Mbank';
+
+-- iii. Find out the names of all employees who work in 'Bosch' company in city Pune
+SELECT e.ename
+FROM Emp e
+JOIN Works w ON e.emp_id = w.emp_id
+JOIN Company c ON w.c_id = c.c_id
+WHERE c.cname = 'Bosch' AND c.city = 'Pune';
+
+-- iv. Delete all records in Works table for employees of a particular company (e.g., SBC Company) whose salary > 5

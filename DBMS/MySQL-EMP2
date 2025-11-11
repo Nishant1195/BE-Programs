@@ -1,0 +1,50 @@
+-- Creating tables
+CREATE TABLE Empl (
+  e_no INT,
+  e_name VARCHAR(50),
+  post VARCHAR(50),
+  pay_rate INT
+);
+
+CREATE TABLE Position (
+  pos_no INT,
+  post VARCHAR(50)
+);
+
+CREATE TABLE Duty_alloc (
+  pos_no INT,
+  e_no INT,
+  month VARCHAR(20),
+  year INT,
+  shift VARCHAR(20)
+);
+
+-- i. Get duty allocation details for e_no 123 for the first shift in the month of April 2003
+SELECT *
+FROM Duty_alloc
+WHERE e_no = 123 AND shift = 'First' AND month = 'April' AND year = 2003;
+
+-- ii. Get the employees whose rate of pay is >= the rate of pay of employee 'Sachin'
+SELECT e_name, pay_rate
+FROM Empl
+WHERE pay_rate >= (
+  SELECT pay_rate
+  FROM Empl
+  WHERE e_name = 'Sachin'
+);
+
+-- iii. Create a view for displaying minimum, maximum and average salary for all the posts
+CREATE VIEW salary_summary AS
+SELECT post,
+       MIN(pay_rate) AS min_salary,
+       MAX(pay_rate) AS max_salary,
+       AVG(pay_rate) AS avg_salary
+FROM Empl
+GROUP BY post;
+
+-- iv. Get a count of different employees on each shift having post 'manager'
+SELECT d.shift, COUNT(DISTINCT e.e_no) AS total_managers
+FROM Duty_alloc d
+JOIN Empl e ON d.e_no = e.e_no
+WHERE e.post = 'manager'
+GROUP BY d.shift;

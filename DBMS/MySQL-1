@@ -1,0 +1,45 @@
+-- Creating tables
+CREATE TABLE teaches (
+  T_ID INT,
+  course_id VARCHAR(10),
+  sec_id INT,
+  semester VARCHAR(10),
+  year INT
+);
+
+CREATE TABLE student (
+  S_ID INT,
+  name VARCHAR(50),
+  dept_name VARCHAR(50),
+  tot_cred INT
+);
+
+CREATE TABLE instructor (
+  T_ID INT,
+  name VARCHAR(50),
+  dept_name VARCHAR(50),
+  salary INT
+);
+
+CREATE TABLE course (
+  course_id VARCHAR(10),
+  title VARCHAR(50),
+  dept_name VARCHAR(50),
+  credits INT
+);
+
+-- i. Find the names of the instructors in the university who have taught the courses semester wise
+SELECT i.name, t.semester, t.year
+FROM instructor i
+JOIN teaches t ON i.T_ID = t.T_ID
+ORDER BY t.semester, t.year;
+
+-- ii. Create a View on single table which retrieves student details
+CREATE VIEW student_view AS
+SELECT * FROM student;
+
+-- iii. Rename the column of table student from dept_name to department_name
+ALTER TABLE student CHANGE dept_name department_name VARCHAR(50);
+
+-- iv. Delete student name whose department is NULL
+DELETE FROM student WHERE department_name IS NULL;

@@ -1,0 +1,55 @@
+-- Creating tables
+CREATE TABLE teaches (
+  T_ID INT,
+  course_id VARCHAR(10),
+  sec_id INT,
+  semester VARCHAR(10),
+  year INT
+);
+
+CREATE TABLE student (
+  S_ID INT,
+  name VARCHAR(50),
+  dept_name VARCHAR(50),
+  tot_cred INT
+);
+
+CREATE TABLE instructor (
+  T_ID INT,
+  name VARCHAR(50),
+  dept_name VARCHAR(50),
+  salary INT
+);
+
+CREATE TABLE course (
+  course_id VARCHAR(10),
+  title VARCHAR(50),
+  dept_name VARCHAR(50),
+  credits INT
+);
+
+-- i. Find the names of all instructors whose salary is greater than 25000
+SELECT name, salary 
+FROM instructor
+WHERE salary > 25000;
+
+-- ii. Update Instructor dept_name from 'CSE' to 'IT'
+UPDATE instructor
+SET dept_name = 'IT'
+WHERE dept_name = 'CSE';
+
+-- iii. Create Simple Index on course table on the attribute dept_name
+CREATE INDEX idx_deptname ON course(dept_name);
+
+-- Find out department-wise courses
+SELECT dept_name, title 
+FROM course
+ORDER BY dept_name;
+
+-- iv. Create a View to retrieve instructor data with course, section, semester, and year
+CREATE VIEW instructor_course_view AS
+SELECT i.name AS instructor_name, i.dept_name, i.salary,
+       c.title AS course_title, t.sec_id, t.semester, t.year
+FROM instructor i
+JOIN teaches t ON i.T_ID = t.T_ID
+JOIN course c ON t.course_id = c.course_id;

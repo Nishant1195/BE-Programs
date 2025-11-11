@@ -1,0 +1,45 @@
+import com.mongodb.client.*;
+import org.bson.Document;
+
+public class BooksMapReduce {
+    public static void main(String[] args) {
+        // Connect to MongoDB
+        String uri = "mongodb://localhost:27017";
+        try (MongoClient mongoClient = MongoClients.create(uri)) {
+
+            // Create database and collection
+            MongoDatabase database = mongoClient.getDatabase("LibraryDB");
+            MongoCollection<Document> books = database.getCollection("Books");
+
+            // Insert sample documents
+            books.insertOne(new Document("Name", "Understanding MongoDB").append("Pages", 200));
+            books.insertOne(new Document("Name", "Mastering Java").append("Pages", 450));
+            books.insertOne(new Document("Name", "Intro to HTML").append("Pages", 150));
+            books.insertOne(new Document("Name", "Advanced Databases").append("Pages", 500));
+
+            System.out.println("Books inserted successfully!");
+
+            // Map function (categorize books)
+            String map = "function() {" +
+                    "var category = (this.Pages > 300) ? 'Big Book' : 'Small Book';" +
+                    "emit(category, 1);" +
+                    "}";
+
+            // Reduce function (count total books per category)
+            String reduce = "function(key, values) {" +
+                    "return Array.sum(values);" +
+                    "}";
+
+            // Perform MapReduce
+            MapReduceIterable<Document> results = books.mapReduce(map, reduce);
+
+            System.out.println("\nBook Categories:");
+            for (Document doc : results) {
+                System.out.println(doc.toJson());
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

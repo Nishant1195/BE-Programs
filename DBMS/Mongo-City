@@ -1,0 +1,23 @@
+db.city.insertMany([
+{ city: "pune", type: "urban", state: "MH", population: 5600000 },
+{ city: "mumbai", type: "urban", state: "MH", population: 12400000 },
+{ city: "delhi", type: "urban", state: "DL", population: 16787941 }
+]);
+
+
+// Statewise population
+mapState = function() { emit(this.state, this.population); };
+reduceState = function(key, vals) { return Array.sum(vals); };
+db.city.mapReduce(mapState, reduceState, { out: "statePop" });
+
+
+// Citywise population
+mapCity = function() { emit(this.city, this.population); };
+reduceCity = function(key, vals) { return Array.sum(vals); };
+db.city.mapReduce(mapCity, reduceCity, { out: "cityPop" });
+
+
+// Typewise population
+mapType = function() { emit(this.type, this.population); };
+reduceType = function(key, vals) { return Array.sum(vals); };
+db.city.mapReduce(mapType, reduceType, { out: "typePop" });

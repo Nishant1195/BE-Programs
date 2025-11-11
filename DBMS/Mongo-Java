@@ -1,0 +1,55 @@
+import com.mongodb.client.*;
+import org.bson.Document;
+import static com.mongodb.client.model.Filters.*;
+
+public class StudentMongoDB {
+    public static void main(String[] args) {
+        // Connect to MongoDB
+        String uri = "mongodb://localhost:27017";
+        try (MongoClient mongoClient = MongoClients.create(uri)) {
+
+            // i. Create Database and Collection
+            MongoDatabase database = mongoClient.getDatabase("CollegeDB");
+            MongoCollection<Document> studentCollection = database.getCollection("Student");
+            System.out.println("Connected to Database and Collection Created Successfully!");
+
+            // ii. Insert Documents
+            Document s1 = new Document("Roll_no", 54)
+                    .append("S_name", "Nishant Talekar")
+                    .append("Semester", 6)
+                    .append("Year", 2025)
+                    .append("No_of_backlogs", 2);
+
+            Document s2 = new Document("Roll_no", 53)
+                    .append("S_name", "Om Salunke")
+                    .append("Semester", 6)
+                    .append("Year", 2025)
+                    .append("No_of_backlogs", 5);
+
+            Document s3 = new Document("Roll_no", 60)
+                    .append("S_name", "Atharva Kadam")
+                    .append("Semester", 6)
+                    .append("Year", 2025)
+                    .append("No_of_backlogs", 3);
+
+            studentCollection.insertMany(java.util.Arrays.asList(s1, s2, s3));
+            System.out.println("Documents inserted successfully!");
+
+            // iii. Delete students who have backlogs > 4
+            studentCollection.deleteMany(gt("No_of_backlogs", 4));
+            System.out.println("Deleted students with more than 4 backlogs.");
+
+            // iv. Retrieve student details by Roll_no
+            int searchRoll = 54;
+            FindIterable<Document> result = studentCollection.find(eq("Roll_no", searchRoll));
+
+            System.out.println("\nStudent Details for Roll_no " + searchRoll + ":");
+            for (Document doc : result) {
+                System.out.println(doc.toJson());
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}

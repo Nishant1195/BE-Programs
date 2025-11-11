@@ -1,0 +1,32 @@
+### MongoDB Assignment — OrderInfo Collection
+
+**Name:** Nishant Talekar (Roll No: 54, TY C)
+**Team:** Om (53), Atharva (60), Priti (61), Mamta (69), Nikita (74), Mahek (79)
+
+---
+
+### OrderInfo Collection
+
+```js
+db.orderinfo.insertMany([
+  { cust_id: 123, cust_name: "abc", status: "A", price: 250 },
+  { cust_id: 124, cust_name: "xyz", status: "B", price: 400 },
+  { cust_id: 125, cust_name: "pqr", status: "A", price: 150 },
+  { cust_id: 126, cust_name: "abc", status: "C", price: 500 }
+]);
+
+// i. Total price per customer (sorted by total price)
+db.orderinfo.aggregate([
+  { $group: { _id: "$cust_name", total_price: { $sum: "$price" } } },
+  { $sort: { total_price: 1 } }
+]);
+
+// ii. Distinct customer names
+db.orderinfo.distinct("cust_name");
+
+// iii. Price of customers with status 'A'
+db.orderinfo.find({ status: "A" }, { price: 1, _id: 0 });
+
+// iv. Delete customers whose status is 'A'
+db.orderinfo.deleteMany({ status: "A" });
+```

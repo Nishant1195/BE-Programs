@@ -1,0 +1,13 @@
+db.books.insertMany([
+{ name: "Understanding JAVA", pages: 400 },
+{ name: "Learn Python", pages: 250 },
+{ name: "Advanced Algorithms", pages: 550 }
+]);
+
+
+// Categorize books by pages
+mapBooks = function() {
+emit(this.pages < 400 ? "Small Books" : "Big Books", 1);
+};
+reduceBooks = function(key, vals) { return Array.sum(vals); };
+db.books.mapReduce(mapBooks, reduceBooks, { out: "bookCat" });

@@ -1,0 +1,37 @@
+### MongoDB Assignment — Movies Collection
+
+**Name:** Nishant Talekar (Roll No: 54, TY C)
+**Team:** Om (53), Atharva (60), Priti (61), Mamta (69), Nikita (74), Mahek (79)
+
+---
+
+### Movies Collection
+
+```js
+db.movies.insertMany([
+  {
+    name: "Movie1",
+    type: "action",
+    budget: 1000000,
+    producer: { name: "producer1", address: "PUNE" }
+  },
+  {
+    name: "Movie2",
+    type: "comedy",
+    budget: 500000,
+    producer: { name: "producer2", address: "MUMBAI" }
+  }
+]);
+
+// i. Find movie names with budget > 100000
+db.movies.find({ budget: { $gt: 100000 } }, { name: 1, _id: 0 });
+
+// ii. Find producer names who live in Pune
+db.movies.find({ "producer.address": "PUNE" }, { "producer.name": 1, _id: 0 });
+
+// iii. Update type of 'action' movies to 'horror'
+db.movies.updateMany({ type: "action" }, { $set: { type: "horror" } });
+
+// iv. Find all movies produced by 'producer1' with their address
+db.movies.find({ "producer.name": "producer1" }, { name: 1, "producer.address": 1, _id: 0 });
+```

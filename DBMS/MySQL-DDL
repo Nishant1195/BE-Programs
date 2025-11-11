@@ -1,0 +1,42 @@
+-- Create Tables
+CREATE TABLE Employee (
+  e_no INT PRIMARY KEY,
+  e_name VARCHAR(50),
+  post VARCHAR(30),
+  pay_rate DECIMAL(10,2)
+);
+
+CREATE TABLE Position (
+  pos_no INT PRIMARY KEY,
+  post VARCHAR(30)
+);
+
+CREATE TABLE Duty_alloc (
+  pos_no INT,
+  e_no INT,
+  month VARCHAR(15),
+  year INT,
+  shift VARCHAR(10),
+  FOREIGN KEY (pos_no) REFERENCES Position(pos_no),
+  FOREIGN KEY (e_no) REFERENCES Employee(e_no)
+);
+
+-- i. Create view that displays first three columns of employee table
+CREATE VIEW emp_view AS
+SELECT e_no, e_name, post FROM Employee;
+
+-- ii. Create view that displays left outer joins on employee and Position tables on post criteria
+CREATE VIEW emp_pos_view AS
+SELECT e.e_no, e.e_name, e.post, p.pos_no
+FROM Employee e
+LEFT JOIN Position p ON e.post = p.post;
+
+-- iii. Create index on pos_no attribute of Position table
+CREATE INDEX idx_posno ON Position(pos_no);
+
+-- iv. Based on indexed column fire the queries
+SELECT * FROM Position WHERE pos_no = 101;
+SELECT d.month, d.shift, p.post 
+FROM Duty_alloc d
+JOIN Position p ON d.pos_no = p.pos_no
+WHERE p.pos_no = 101;

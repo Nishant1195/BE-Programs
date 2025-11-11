@@ -1,0 +1,55 @@
+-- i. Create table Employee
+CREATE TABLE Employee (
+  SSN INT PRIMARY KEY,
+  Ename VARCHAR(50),
+  state VARCHAR(50),
+  salary INT
+);
+
+-- ii. Insert records into Employee table
+INSERT INTO Employee VALUES (101, 'Nishant', 'MH', 55000);
+INSERT INTO Employee VALUES (102, 'Om', 'Gujrat', 45000);
+INSERT INTO Employee VALUES (103, 'Atharva', 'MH', 60000);
+INSERT INTO Employee VALUES (104, 'Priti', 'TN', 52000);
+INSERT INTO Employee VALUES (105, 'Mahek', 'Gujrat', 40000);
+
+-- iii. Retrieve employee details based on SSN
+SELECT * FROM Employee WHERE SSN = 101;
+
+-- iv. Update the employee state from 'MH' to 'TN'
+UPDATE Employee
+SET state = 'TN'
+WHERE state = 'MH';
+
+-- v. Delete all employees from 'Gujrat'
+DELETE FROM Employee
+WHERE state = 'Gujrat';
+
+
+import java.sql.*;
+
+public class EmployeeDB {
+    public static void main(String[] args) {
+        String url = "jdbc:mysql://localhost:3306/your_database_name";
+        String user = "root";
+        String password = "your_password";
+
+        try (Connection con = DriverManager.getConnection(url, user, password);
+             Statement stmt = con.createStatement()) {
+
+            // i. Create Employee table
+            String createTable = "CREATE TABLE IF NOT EXISTS Employee (" +
+                                 "SSN INT PRIMARY KEY, " +
+                                 "Ename VARCHAR(50), " +
+                                 "state VARCHAR(50), " +
+                                 "salary INT)";
+            stmt.executeUpdate(createTable);
+            System.out.println("Table created successfully.");
+
+            // ii. Insert Records
+            stmt.executeUpdate("INSERT INTO Employee VALUES (101, 'Nishant', 'MH', 55000)");
+            stmt.executeUpdate("INSERT INTO Employee VALUES (102, 'Om', 'Gujrat', 45000)");
+            stmt.executeUpdate("INSERT INTO Employee VALUES (103, 'Atharva', 'MH', 60000)");
+            System.out.println("Records inserted successfully.");
+
+            // iii. Retrieve details by SSN

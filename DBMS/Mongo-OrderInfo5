@@ -1,0 +1,39 @@
+// Create Collection and Insert Documents
+db.orderinfo.insertMany([
+  { cust_id: 123, cust_name: "abc", status: "A", price: 250 },
+  { cust_id: 124, cust_name: "xyz", status: "B", price: 350 },
+  { cust_id: 125, cust_name: "pqr", status: "A", price: 450 }
+]);
+
+// i. Find the total price for each customer and display in the order of total price
+db.orderinfo.aggregate([
+  { $group: { _id: "$cust_name", total_price: { $sum: "$price" } } },
+  { $sort: { total_price: 1 } }
+]);
+
+// ii. Display the average price for each customer group by status
+db.orderinfo.aggregate([
+  { $group: { _id: "$status", avg_price: { $avg: "$price" } } }
+]);
+
+// iii. Create simple index on orderinfo collection
+db.orderinfo.createIndex({ cust_id: 1 });
+
+// iv. Create complex index on orderinfo collection and fire the queries, then drop duplicates
+db.orderinfo.createIndex({ cust_name: 1, price: -1 });
+
+// Sample query using complex index
+db.orderinfo.find().sort({ cust_name: 1, price: -1 });
+
+// Remove duplicates if any
+db.orderinfo.aggregate([
+  { $group: {
+      _id: { cust_id: "$cust_id" },
+      dups: { $addToSet: "$_id" },
+      count: { $sum: 1 }
+  }},
+  { $match: { count: { $gt: 1 } } }
+]).forEach(function(doc){
+  doc.dups.shift();
+  db.orderinfo.deleteMany({ _id: { $in: doc.dups } });
+});

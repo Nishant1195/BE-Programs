@@ -1,0 +1,29 @@
+### MongoDB Assignment — OrderInfo Collection (Update & Conditional Queries)
+
+**Name:** Nishant Talekar (Roll No: 54, TY C)
+**Team:** Om (53), Atharva (60), Priti (61), Mamta (69), Nikita (74), Mahek (79)
+
+---
+
+### OrderInfo Collection
+
+```js
+db.orderinfo.insertMany([
+  { cust_id: 123, cust_name: "abc", status: "A", price: 250 },
+  { cust_id: 124, cust_name: "xyz", status: "B", price: 400 },
+  { cust_id: 125, cust_name: "pqr", status: "C", price: 150 }
+]);
+
+// i. Display names of customers with price between 250 and 450
+db.orderinfo.find({ price: { $gte: 250, $lte: 450 } }, { cust_name: 1, _id: 0 });
+
+// ii. Increment price by 10 for cust_id 123 and decrement by 5 for cust_id 124
+db.orderinfo.updateOne({ cust_id: 123 }, { $inc: { price: 10 } });
+db.orderinfo.updateOne({ cust_id: 124 }, { $inc: { price: -5 } });
+
+// iii. Remove one field (e.g., status) from all documents
+db.orderinfo.updateMany({}, { $unset: { status: 1 } });
+
+// iv. Find names of customers where status is 'A' or price = 250 or both
+db.orderinfo.find({ $or: [ { status: "A" }, { price: 250 } ] }, { cust_name: 1, _id: 0 });
+```
